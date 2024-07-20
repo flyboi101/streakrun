@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 import tosIcon from './icon2.svg'; // Adjust the path to your SVG file
 import discIcon from './icon1.svg'; // Adjust the path to your SVG file
+import dcIcon from './icon3.svg'; // Adjust the path to your SVG file
 
 const SidebarContainer = styled.div`
   position: fixed;
@@ -120,11 +121,14 @@ export function Sidebar() {
       <SidebarItem to="/roulette">Roulette</SidebarItem>
       <SidebarItem to="/dice">Dice</SidebarItem>
       <LowerSection>
+        <IconWrapper href="https://discord.gg/nePYC6pFmS" target="_blank" rel="noopener noreferrer">
+          <img src={dcIcon} alt="disc" />
+        </IconWrapper>
         <IconWrapper href="https://t.me/streakrun" target="_blank" rel="noopener noreferrer">
           <img src={tosIcon} alt="TOS" />
         </IconWrapper>
         <IconWrapper href="https://x.com/streak_run" target="_blank" rel="noopener noreferrer">
-          <img src={discIcon} alt="DISC" />
+          <img src={discIcon} alt="X" />
         </IconWrapper>
       </LowerSection>
       <GlowEffect />
