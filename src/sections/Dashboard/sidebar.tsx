@@ -105,7 +105,7 @@ const GlowEffect = styled.div`
 
 const LowerSection = styled.div`
   padding-bottom: 1rem;
-  margin-top: 3rem; /* Reduced margin-top to move icons up */
+  margin-top: 2rem; /* Reduced margin-top to move icons up */
 `;
 
 export function Sidebar() {
