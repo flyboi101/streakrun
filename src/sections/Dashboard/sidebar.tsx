@@ -111,7 +111,11 @@ const LowerSection = styled.div`
 export function Sidebar() {
   return (
     <SidebarContainer>
+<<<<<<< HEAD
+      <BuyNowItem href="https://pump.fun/HKFPB4FpHHaFnjE1w543DTTszsFcycTgMkaddExDpump" target="_blank" rel="noopener noreferrer">BUY NOW</BuyNowItem>
+=======
       <BuyNowItem href="https://pump.fun/" target="_blank" rel="noopener noreferrer">BUY NOW</BuyNowItem>
+>>>>>>> 654b1f140f94ec646e74f0f13c79e309f956c701
       <SidebarItem to="/mines">Mines</SidebarItem>
       <SidebarItem to="/hilo">Hilo</SidebarItem>
       <SidebarItem to="/plinko">Plinko</SidebarItem>
