@@ -144,7 +144,14 @@ export class Plinko {
             })
           })
       }).slice(1)
-
+    
+    
+    const targetRow = 3;
+    const targetCol = 2;
+    const targetPegIndex = targetRow * (targetRow + 1) / 2 + targetCol;
+    const pegToModify = pegs[targetPegIndex];
+    
+    Matter.Body.set(pegToModify, { radius: 15 });
 
     Matter.Composite.add(
       this.bucketComposite,
