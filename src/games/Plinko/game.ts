@@ -3,14 +3,12 @@ import Matter from 'matter-js'
 const WIDTH = 700
 const HEIGHT = 700
 
-// How many plinkos to simulate to find desired result. More is slower but more likely to yield desired result
 const SIMULATIONS = 100
-// Size of the plinko
-export const PLINKO_RAIUS = 9
+export const PLINKO_RADIUS = 9
 export const PEG_RADIUS = 11
-const RESTISTUTION = .4
+const HIGHLIGHTED_PEG_RADIUS = PEG_RADIUS * 1.5
+const RESTITUTION = 0.4
 const GRAVITY = 1
-// How far from the center plinkos can spawn
 const SPAWN_OFFSET_RANGE = 10
 
 export const bucketWallHeight = 60
@@ -33,7 +31,6 @@ export interface PlinkoProps {
 
 export class Plinko {
   width = WIDTH
-
   height = HEIGHT
 
   private engine = Matter.Engine.create({
@@ -42,28 +39,21 @@ export class Plinko {
   })
 
   private runner = Matter.Runner.create()
-
   private props: PlinkoProps
-
   private ballComposite = Matter.Composite.create()
   private bucketComposite = Matter.Composite.create()
-
   private startPositions: number[]
+  private highlightedPegs: { [key: number]: boolean } = {}
 
   private makeBuckets() {
-    const unique = Array.from(new Set(this.props.multipliers))
-
-    const secondHalf = [...unique].slice(1)
-    const firstHalf = [...secondHalf].reverse()
+    const unique = this.props.multipliers.filter((v, i, a) => a.indexOf(v) === i)
+    const secondHalf = unique.slice(1)
+    const firstHalf = secondHalf.slice().reverse()
     const center = [unique[0], unique[0], unique[0]]
-    const buckets = [
-      ...firstHalf,
-      ...center,
-      ...secondHalf,
-    ]
+    const buckets = firstHalf.concat(center, secondHalf)
     const numBuckets = buckets.length
     const bucketWidth = this.width / numBuckets
-    const barriers = Array.from({ length: numBuckets + 1 }).map((_, i) => {
+    const barriers = new Array(numBuckets + 1).fill(null).map((_, i) => {
       const x = i * bucketWidth
       return Matter.Bodies.rectangle(x, this.height - barrierHeight / 2, barrierWidth, barrierHeight, {
         isStatic: true,
@@ -85,14 +75,14 @@ export class Plinko {
         })
       })
 
-    return [...sensors, ...barriers]
+    return sensors.concat(barriers)
   }
 
   private makePlinko = (offsetX: number, index: number) => {
     const x = this.width / 2 + offsetX
     const y = -10
-    return Matter.Bodies.circle(x, y, PLINKO_RAIUS, {
-      restitution: RESTISTUTION,
+    return Matter.Bodies.circle(x, y, PLINKO_RADIUS, {
+      restitution: RESTITUTION,
       collisionFilter: { group: -6969 },
       label: 'Plinko',
       plugin: { startPositionIndex: index },
@@ -100,6 +90,7 @@ export class Plinko {
   }
 
   single() {
+    this.resetHighlightedPegs()
     Matter.Events.off(this.engine, 'collisionStart', this.collisionHandler)
     Matter.Runner.stop(this.runner)
     Matter.Events.on(this.engine, 'collisionStart', this.collisionHandler)
@@ -125,26 +116,27 @@ export class Plinko {
 
   constructor(props: PlinkoProps) {
     this.props = props
-    this.startPositions = Array.from({ length: SIMULATIONS }).map((_, i) => Matter.Common.random(-SPAWN_OFFSET_RANGE / 2, SPAWN_OFFSET_RANGE / 2))
+    this.startPositions = new Array(SIMULATIONS).fill(null).map(() => Matter.Common.random(-SPAWN_OFFSET_RANGE / 2, SPAWN_OFFSET_RANGE / 2))
 
     const rowSize = this.height / (this.props.rows + 2)
-    const pegs = Array.from({ length: this.props.rows })
-      .flatMap((_, row, jarr) => {
+    const pegs = new Array(this.props.rows).fill(null)
+      .reduce((acc, _, row, jarr) => {
         const cols = (1 + row)
         const rowWidth = this.width * (row / (jarr.length - 1))
         const colSpacing = cols === 1 ? 0 : rowWidth / (cols - 1)
-        return Array.from({ length: cols })
-          .map((_, column, arr) => {
-            const x = this.width / 2 - rowWidth / 2 + colSpacing * column
-            const y = rowSize * row + rowSize / 2
-            return Matter.Bodies.circle(x, y, PEG_RADIUS, {
-              isStatic: true,
-              label: 'Peg',
-              plugin: { pegIndex: row * arr.length + column },
-            })
+        const rowPegs = new Array(cols).fill(null).map((_, column, arr) => {
+          const x = this.width / 2 - rowWidth / 2 + colSpacing * column
+          const y = rowSize * row + rowSize / 2
+          const pegIndex = row * arr.length + column
+          const radius = this.highlightedPegs[pegIndex] ? HIGHLIGHTED_PEG_RADIUS : PEG_RADIUS
+          return Matter.Bodies.circle(x, y, radius, {
+            isStatic: true,
+            label: 'Peg',
+            plugin: { pegIndex },
           })
-      }).slice(1)
-
+        })
+        return acc.concat(rowPegs)
+      }, []).slice(1)
 
     Matter.Composite.add(
       this.bucketComposite,
@@ -158,6 +150,7 @@ export class Plinko {
     ])
   }
 
+ 
   reset() {
     Matter.Runner.stop(this.runner)
     Matter.Composite.clear(this.ballComposite, false)
@@ -252,5 +245,10 @@ export class Plinko {
     )
 
     Matter.Runner.run(this.runner, this.engine)
+  }
+
+
+  resetHighlightedPegs() {
+    this.highlightedPegs = {}
   }
 }
