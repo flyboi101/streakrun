@@ -97,7 +97,8 @@ export class Plinko {
   }
 
   private makePlinko = (offsetX: number, index: number) => {
-    const x = this.width / 2 + offsetX;
+    // Adjust x to align pegs to the left side
+    const x = (this.width / 4) + offsetX; // Left alignment
     const y = -10;
     return Matter.Bodies.circle(x, y, PLINKO_RAIUS, {
       restitution: RESTISTUTION,
@@ -148,7 +149,8 @@ export class Plinko {
     const pegs = Array.from({ length: this.props.rows })
       .flatMap((_, row) => {
         const cols = 1 + row;
-        const rowWidth = this.width - horizontalOffset; // Total width minus offset
+        // Align pegs to the left and ensure a clear path to the right
+        const rowWidth = this.width - horizontalOffset; 
         const colSpacing = cols === 1 ? 0 : rowWidth / (cols - 1);
         return Array.from({ length: cols }).map((_, column) => {
           // Ensure pegs are positioned from the left, taking offset into account
