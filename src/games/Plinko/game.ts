@@ -129,21 +129,27 @@ export class Plinko {
 
     const rowSize = this.height / (this.props.rows + 2)
     const pegs = Array.from({ length: this.props.rows })
-      .flatMap((_, row, jarr) => {
-        const cols = (1 + row)
-        const rowWidth = this.width * (row / (jarr.length - 1))
-        const colSpacing = cols === 1 ? 0 : rowWidth / (cols - 1)
-        return Array.from({ length: cols })
-          .map((_, column, arr) => {
-            const x = this.width / 2 - rowWidth / 2 + colSpacing * column
-            const y = rowSize * row + rowSize / 2
-            return Matter.Bodies.circle(x, y, PEG_RADIUS, {
-              isStatic: true,
-              label: 'Peg',
-              plugin: { pegIndex: row * arr.length + column },
-            })
-          })
-      }).slice(1)
+    const pegs = [];
+    const totalPegs = (this.props.rows * (this.props.rows + 1)) / 2;
+    const pegSpacing = WIDTH / totalPegs;
+    
+    let pegIndex = 0;
+    for (let row = 0; row < this.props.rows; row++) {
+      const numPegsInRow = row + 1;
+      const rowWidth = numPegsInRow * pegSpacing;
+      const rowOffset = (WIDTH - rowWidth) / 2;
+    
+      for (let col = 0; col < numPegsInRow; col++) {
+        const x = rowOffset + col * pegSpacing;
+        const y = row * (rowSize) + rowSize / 2;
+        pegs.push(Matter.Bodies.circle(x, y, PEG_RADIUS, {
+          isStatic: true,
+          label: 'Peg',
+          plugin: { pegIndex },
+        }));
+        pegIndex++;
+      }
+    }
 
 
     Matter.Composite.add(
