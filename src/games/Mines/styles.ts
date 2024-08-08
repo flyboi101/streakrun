@@ -124,6 +124,10 @@ export const CellButton = styled.button<{status: CellStatus, selected: boolean}>
   font-size: 12px;
   cursor: pointer;
 
+  ${(props) => props.hasMineBelow && css`
+    border-bottom: 3px solid red;
+  `}
+  
   ${(props) => props.selected && css`
     animation: ${tickingAnimation} .5s ease infinite;
     z-index: 10;
